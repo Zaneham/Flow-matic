@@ -264,7 +264,7 @@ This is how FLOW-MATIC achieved runtime polymorphism without objects or function
 
 ## License
 
-Part of the Hopper Project - Preserving Grace Hopper's Legacy.
+Part of the Ian index and Hopper project - Preserving Grace Hopper's Legacy.
 
 ---
 
