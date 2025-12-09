@@ -1,0 +1,7 @@
+{
+    "C": [
+        {"KEY": "001", "NAME": "ALPHA", "MATCHED-VALUE": 100},
+        {"KEY": "002", "NAME": "BETA", "MATCHED-VALUE": 200}
+    ]
+}
+

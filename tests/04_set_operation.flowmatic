@@ -1,0 +1,29 @@
+* TEST 04: SET OPERATION (The Feature COBOL Killed!)
+* Tests runtime flow modification
+
+(0)  INPUT CONFIG FILE-A DATA FILE-B ; OUTPUT RESULT FILE-C .
+
+* Configure routing - unconditionally set premium processing
+(1)  READ-ITEM A ; IF END OF DATA GO TO OPERATION 3 ;
+     SET OPERATION 5 TO GO TO OPERATION 6 ;
+     JUMP TO OPERATION 3 .
+
+* Process data
+(3)  READ-ITEM B ; IF END OF DATA GO TO OPERATION 8 .
+
+(4)  TRANSFER B TO C .
+
+* This operation's target was modified by SET OPERATION!
+* Originally jumps to 7, but SET OPERATION changed it to 6
+(5)  JUMP TO OPERATION 7 .
+
+* PREMIUM processing (reached via SET OPERATION)
+(6)  MULTIPLY AMOUNT (B) BY 1.1 GIVING PROCESSED (C) ;
+     MOVE "PREMIUM" TO TYPE (C) ;
+     JUMP TO OPERATION 7 .
+
+* Write result and continue
+(7)  WRITE-ITEM C ;
+     JUMP TO OPERATION 3 .
+
+(8)  STOP .

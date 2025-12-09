@@ -1,0 +1,180 @@
+* ============================================================================
+* FLOW-MATIC X-I SECTIONS DEMONSTRATION
+* ============================================================================
+* Written for: UNIVAC I / UNIVAC II
+* Language:    FLOW-MATIC (1957)
+* Author:      Hopper Project - Preserving Grace Hopper's Legacy
+*
+* THIS IS ANOTHER FEATURE COBOL KILLED!
+*
+* X-I Sections allowed business programmers to embed machine code
+* directly in their FLOW-MATIC programs for performance-critical sections.
+*
+* From the original manual (U1518, Appendix C, pages 105-109):
+*   "X-I sections of a FLOW-MATIC program are hand-tailored sections
+*    of coding. Actual machine instructions are used, but a system of
+*    relative and symbolic addressing is used in place of actual
+*    machine locations."
+*
+* This was BRILLIANT because:
+* 1. Business analysts could write most of the program in English
+* 2. Programmers could optimize critical paths in machine code
+* 3. Relative addressing (A000, W000, M000) kept it portable
+*
+* COBOL removed this to achieve "machine independence" - creating a 
+* 39-year gap before FFI/JNI/ctypes reinvented the concept in 1996.
+*
+* In this demo, we mark where X-I sections WOULD have gone.
+* A real UNIVAC would have actual machine instructions there.
+*
+* Based on: U1518 FLOW-MATIC Programming System (1958), Appendix C
+* ============================================================================
+*
+* This program processes large batches of financial calculations.
+* X-I sections would be used for inner-loop arithmetic optimization.
+*
+* FILE DEFINITIONS:
+*   A = CALCULATION-INPUT (Input)  - Numbers to process
+*   B = LOOKUP-TABLE      (Input)  - Pre-computed values
+*   C = RESULTS-OUTPUT    (Output) - Calculated results
+*   D = HIGH-SPEED-PRINTER (HSP)   - Computation log
+*
+* ============================================================================
+
+(0)  INPUT CALCULATION-INPUT FILE-A LOOKUP-TABLE FILE-B ;
+     OUTPUT RESULTS-OUTPUT FILE-C ;
+     HSP D .
+
+* ----------------------------------------------------------------------------
+* OPERATION 1: Initialize accumulators
+* ----------------------------------------------------------------------------
+(1)  MOVE ZEROS TO RUNNING-TOTAL (C) ;
+     MOVE ZEROS TO RECORD-COUNT (C) ;
+     READ-ITEM A ;
+     IF END OF DATA GO TO OPERATION 10 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 2: Main calculation loop
+* In the original FLOW-MATIC, this could call an X-I section for speed
+* ----------------------------------------------------------------------------
+(2)  TRANSFER A TO C .
+
+* ----------------------------------------------------------------------------
+* OPERATION 3: Complex arithmetic - would be X-I optimized on UNIVAC
+* 
+* *** X-I SECTION MARKER ***
+* On a real UNIVAC, the following operations would be replaced with
+* hand-optimized machine code using relative addressing:
+*
+*   X-I  A000  ; Load from input area (relative address)
+*   X-I  M010  ; Multiply instruction
+*   X-I  W000  ; Store to working storage
+*   X-I  A001  ; Load second operand
+*   X-I  A010  ; Add instruction  
+*   X-I  W001  ; Store result
+*
+* The A, W, M prefixes meant:
+*   A = Input Area addresses
+*   W = Working Storage addresses
+*   M = Machine instruction addresses
+*
+* This kept the code PORTABLE between UNIVAC models!
+* *** END X-I SECTION MARKER ***
+*
+* Standard FLOW-MATIC equivalent:
+* ----------------------------------------------------------------------------
+(3)  MULTIPLY VALUE-A (A) BY VALUE-B (A) GIVING TEMP-RESULT (C) ;
+     ADD VALUE-C (A) TO TEMP-RESULT (C) ;
+     MULTIPLY TEMP-RESULT (C) BY FACTOR (A) GIVING COMPUTED-VALUE (C) .
+
+* ----------------------------------------------------------------------------
+* OPERATION 4: Lookup table access - another X-I candidate
+*
+* *** X-I SECTION MARKER ***
+* Table lookups were perfect for X-I optimization because:
+* 1. Index calculations could use machine registers
+* 2. Memory access patterns could be optimized
+* 3. Loop unrolling was possible in machine code
+*
+* Real UNIVAC X-I code might look like:
+*   X-I  A000    ; Load index value
+*   X-I  M020    ; Calculate offset
+*   X-I  B000,X  ; Load from table with index
+*   X-I  W002    ; Store result
+* *** END X-I SECTION MARKER ***
+* ----------------------------------------------------------------------------
+(4)  READ-ITEM B ;
+     IF END OF DATA GO TO OPERATION 6 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 5: Match and apply lookup value
+* ----------------------------------------------------------------------------
+(5)  COMPARE INDEX-KEY (A) WITH TABLE-KEY (B) ;
+     IF EQUAL GO TO OPERATION 6 ;
+     OTHERWISE GO TO OPERATION 4 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 6: Apply lookup factor
+* ----------------------------------------------------------------------------
+(6)  MULTIPLY COMPUTED-VALUE (C) BY TABLE-FACTOR (B) GIVING FINAL-VALUE (C) .
+
+* ----------------------------------------------------------------------------
+* OPERATION 7: Accumulate results
+* Inner loop arithmetic - prime X-I territory on UNIVAC
+* ----------------------------------------------------------------------------
+(7)  ADD FINAL-VALUE (C) TO RUNNING-TOTAL (C) ;
+     ADD 1 TO RECORD-COUNT (C) .
+
+* ----------------------------------------------------------------------------
+* OPERATION 8: Write result record
+* ----------------------------------------------------------------------------
+(8)  WRITE-ITEM C ;
+     PRINT-ITEM D .
+
+* ----------------------------------------------------------------------------
+* OPERATION 9: Continue loop
+* ----------------------------------------------------------------------------
+(9)  READ-ITEM A ;
+     IF END OF DATA GO TO OPERATION 10 ;
+     JUMP TO OPERATION 2 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 10: Compute summary statistics
+* 
+* *** X-I SECTION MARKER ***
+* Division was EXPENSIVE in 1957. An X-I section could use
+* shift-and-subtract algorithms optimized for UNIVAC's word size.
+* This single DIVIDE might have been 50+ machine instructions!
+* *** END X-I SECTION MARKER ***
+* ----------------------------------------------------------------------------
+(10) DIVIDE RUNNING-TOTAL (C) BY RECORD-COUNT (C) GIVING AVERAGE-VALUE (C) .
+
+* ----------------------------------------------------------------------------
+* OPERATION 11: Print summary
+* ----------------------------------------------------------------------------
+(11) MOVE "CALCULATION COMPLETE" TO STATUS (C) ;
+     PRINT-ITEM D ;
+     CLOSE-OUT FILES C ;
+     STOP .
+
+* ============================================================================
+* END OF X-I SECTIONS DEMONSTRATION
+*
+* What COBOL took away:
+* - Business programmers could NOT optimize hot paths
+* - Had to accept whatever the compiler generated
+* - No escape hatch for performance-critical code
+*
+* What we lost for 39 years:
+* - Direct native code integration
+* - The elegant A/W/M relative addressing system
+* - The ability to mix high-level and low-level in one source file
+*
+* FFI/JNI/ctypes (1996+) reinvented this, but:
+* - Requires separate compilation units
+* - Complex type marshaling
+* - No inline capability
+*
+* FLOW-MATIC had it in 1957. Grace Hopper knew.
+* ============================================================================
+

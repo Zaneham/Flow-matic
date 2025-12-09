@@ -1,0 +1,7 @@
+{
+    "B": [
+        {"NAME": "FIRST", "TOTAL": 100, "HALF-VALUE": 50.0},
+        {"NAME": "SECOND", "TOTAL": 250, "HALF-VALUE": 125.0}
+    ]
+}
+

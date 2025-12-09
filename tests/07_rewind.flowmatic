@@ -1,0 +1,27 @@
+* TEST 07: REWIND - Multi-pass file processing
+* From U1518 manual: "Rewinds current reel of an input file"
+* This allows re-reading a file for multi-pass algorithms
+
+(0)  INPUT DATA FILE-A ; OUTPUT RESULT FILE-B .
+
+* Initialize counters ONCE
+(1)  MOVE 0 TO RECORD-COUNT (B) ;
+     MOVE 0 TO TOTAL-VALUE (B) .
+
+* First pass: Count records
+(2)  READ-ITEM A ; IF END OF DATA GO TO OPERATION 4 .
+
+(3)  ADD 1 TO RECORD-COUNT (B) ;
+     JUMP TO OPERATION 2 .
+
+* REWIND and second pass: Sum values
+(4)  REWIND A .
+
+(5)  READ-ITEM A ; IF END OF DATA GO TO OPERATION 7 .
+
+(6)  ADD VALUE (A) TO TOTAL-VALUE (B) ;
+     JUMP TO OPERATION 5 .
+
+* Write result
+(7)  WRITE-ITEM B ;
+     STOP .

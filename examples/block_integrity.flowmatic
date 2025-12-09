@@ -1,0 +1,175 @@
+* ============================================================================
+* FLOW-MATIC BLOCK INTEGRITY DEMONSTRATION
+* ============================================================================
+* Written for: UNIVAC I / UNIVAC II
+* Language:    FLOW-MATIC (1957)
+* Author:      Hopper Project - Preserving Grace Hopper's Legacy
+*
+* YET ANOTHER FEATURE COBOL DROPPED!
+*
+* FLOW-MATIC had BUILT-IN data integrity checking at the language level.
+* From U1518 (page 39), every file could have:
+*
+*   BLK CT IND 000000000001   ; Enable block counting
+*   BLK CT LOC 000000000001   ; Where count is stored in sentinel
+*   END REEL SEN              ; End-of-reel sentinel value
+*   END FILE SEN              ; End-of-file sentinel value
+*
+* The LANGUAGE would automatically:
+* 1. Count blocks/records as they were read
+* 2. Verify counts against stored values
+* 3. Detect end-of-reel and end-of-file conditions
+* 4. Flag data corruption BEFORE processing bad data
+*
+* Modern systems need:
+* - External checksums (CRC, MD5, SHA)
+* - Database transaction logs
+* - ETL validation code
+* - File system integrity tools
+*
+* All of this was AUTOMATIC in 1957 FLOW-MATIC!
+*
+* Based on: U1518 FLOW-MATIC Programming System (1958), page 39
+* ============================================================================
+*
+* This program demonstrates integrity-checked file processing.
+* We simulate the integrity features in the FLOW-MATIC syntax.
+*
+* FILE DEFINITIONS:
+*   A = MASTER-FILE       (Input)  - With integrity checking
+*   B = TRANSACTION-FILE  (Input)  - Updates to apply
+*   C = UPDATED-MASTER    (Output) - Verified output
+*   D = HIGH-SPEED-PRINTER (HSP)   - Integrity report
+*
+* FILE INTEGRITY SPECIFICATIONS (original FLOW-MATIC syntax):
+*   FILE A - BLK CT IND 1 ; BLK CT LOC 1 ; END FILE SEN 999999 .
+*   FILE C - BLK CT IND 1 ; BLK CT LOC 1 ; END FILE SEN 999999 .
+*
+* ============================================================================
+
+(0)  INPUT MASTER-FILE FILE-A TRANSACTION-FILE FILE-B ;
+     OUTPUT UPDATED-MASTER FILE-C ;
+     HSP D .
+
+* ----------------------------------------------------------------------------
+* OPERATION 1: Initialize integrity counters
+* In original FLOW-MATIC, this was AUTOMATIC from file definitions!
+* ----------------------------------------------------------------------------
+(1)  MOVE ZEROS TO INPUT-BLOCK-COUNT (C) ;
+     MOVE ZEROS TO OUTPUT-BLOCK-COUNT (C) ;
+     MOVE ZEROS TO ERROR-COUNT (C) ;
+     MOVE "INTEGRITY CHECK ACTIVE" TO STATUS (C) ;
+     PRINT-ITEM D .
+
+* ----------------------------------------------------------------------------
+* OPERATION 2: Read master record with automatic block counting
+* The original would increment BLK CT automatically
+* ----------------------------------------------------------------------------
+(2)  READ-ITEM A ;
+     IF END OF DATA GO TO OPERATION 9 ;
+     ADD 1 TO INPUT-BLOCK-COUNT (C) .
+
+* ----------------------------------------------------------------------------
+* OPERATION 3: Verify record sentinel (original had this built-in)
+* END FILE SEN would automatically detect 999999 as end marker
+* ----------------------------------------------------------------------------
+(3)  TEST RECORD-SENTINEL (A) AGAINST 999999 ;
+     IF EQUAL GO TO OPERATION 9 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 4: Check for data integrity issues
+* FLOW-MATIC would flag inconsistencies automatically
+* ----------------------------------------------------------------------------
+(4)  TEST CHECKSUM-FIELD (A) AGAINST COMPUTED-CHECKSUM (A) ;
+     IF EQUAL GO TO OPERATION 5 ;
+     OTHERWISE GO TO OPERATION 8 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 5: Data integrity verified - process normally
+* ----------------------------------------------------------------------------
+(5)  READ-ITEM B ;
+     IF END OF DATA GO TO OPERATION 7 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 6: Apply transaction if matching
+* ----------------------------------------------------------------------------
+(6)  COMPARE MASTER-KEY (A) WITH TRANS-KEY (B) ;
+     IF EQUAL GO TO OPERATION 7 ;
+     OTHERWISE GO TO OPERATION 5 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 7: Write verified record with block counting
+* BLK CT would increment automatically on write
+* ----------------------------------------------------------------------------
+(7)  TRANSFER A TO C ;
+     WRITE-ITEM C ;
+     ADD 1 TO OUTPUT-BLOCK-COUNT (C) ;
+     JUMP TO OPERATION 2 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 8: Integrity error - flag and skip record
+* Original FLOW-MATIC would halt on integrity violations
+* ----------------------------------------------------------------------------
+(8)  MOVE "INTEGRITY ERROR" TO ERROR-TYPE (C) ;
+     MOVE MASTER-KEY (A) TO ERROR-KEY (C) ;
+     MOVE INPUT-BLOCK-COUNT (C) TO ERROR-AT-BLOCK (C) ;
+     ADD 1 TO ERROR-COUNT (C) ;
+     PRINT-ITEM D ;
+     JUMP TO OPERATION 2 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 9: End of file - verify final block count
+* BLK CT LOC would be checked against BLK CT automatically
+* ----------------------------------------------------------------------------
+(9)  COMPARE INPUT-BLOCK-COUNT (C) WITH EXPECTED-COUNT (A) ;
+     IF EQUAL GO TO OPERATION 10 ;
+     OTHERWISE GO TO OPERATION 11 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 10: Block count verified - success!
+* ----------------------------------------------------------------------------
+(10) MOVE "INTEGRITY VERIFIED" TO FINAL-STATUS (C) ;
+     MOVE INPUT-BLOCK-COUNT (C) TO VERIFIED-COUNT (C) ;
+     MOVE OUTPUT-BLOCK-COUNT (C) TO WRITTEN-COUNT (C) ;
+     PRINT-ITEM D ;
+     JUMP TO OPERATION 12 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 11: Block count mismatch - data may be corrupted!
+* ----------------------------------------------------------------------------
+(11) MOVE "BLOCK COUNT MISMATCH - POSSIBLE CORRUPTION" TO FINAL-STATUS (C) ;
+     MOVE INPUT-BLOCK-COUNT (C) TO ACTUAL-COUNT (C) ;
+     MOVE EXPECTED-COUNT (A) TO EXPECTED-COUNT (C) ;
+     PRINT-ITEM D .
+
+* ----------------------------------------------------------------------------
+* OPERATION 12: Write integrity summary
+* ----------------------------------------------------------------------------
+(12) MOVE "PROCESSING COMPLETE" TO REPORT-STATUS (C) ;
+     MOVE INPUT-BLOCK-COUNT (C) TO TOTAL-INPUT (C) ;
+     MOVE OUTPUT-BLOCK-COUNT (C) TO TOTAL-OUTPUT (C) ;
+     MOVE ERROR-COUNT (C) TO TOTAL-ERRORS (C) ;
+     PRINT-ITEM D ;
+     CLOSE-OUT FILES C ;
+     STOP .
+
+* ============================================================================
+* END OF BLOCK INTEGRITY DEMONSTRATION
+*
+* What FLOW-MATIC provided in 1957:
+* - Automatic block counting on read/write
+* - Sentinel detection (end of reel, end of file)
+* - Count verification against stored values
+* - Language-level data integrity
+*
+* What we have to do manually in 2024:
+* - Implement checksums (CRC32, MD5, SHA256)
+* - Write ETL validation code
+* - Configure database transaction logs
+* - Use external file integrity tools
+* - Hope nothing goes wrong between checks
+*
+* The LANGUAGE verified your data. Now you verify it yourself.
+* Grace Hopper had it right 67 years ago.
+* ============================================================================
+

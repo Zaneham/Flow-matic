@@ -1,0 +1,224 @@
+# =============================================================================
+# FLOW-MATIC GRAMMAR
+# =============================================================================
+# Based on: U1518 FLOW-MATIC Programming System (1958)
+#           Remington Rand UNIVAC Division
+#           Developed under Grace Hopper
+#
+# This is a formal grammar for FLOW-MATIC, the first English-like
+# business programming language (1955-1959).
+#
+# Notation:
+#   ::=     definition
+#   |       alternation
+#   { }     zero or more repetitions
+#   [ ]     optional
+#   ' '     terminal/literal
+#   CAPS    terminal tokens
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Top-Level Structure
+# -----------------------------------------------------------------------------
+
+Program         ::= Operation0 { Operation }
+
+Operation0      ::= '(' '0' ')' FileDefinitions '.'
+
+Operation       ::= '(' NUMBER ')' StatementList '.'
+
+# -----------------------------------------------------------------------------
+# File Definitions (Operation 0 - COMPUTER section)
+# -----------------------------------------------------------------------------
+
+FileDefinitions ::= { FileDefinition ';' }
+
+FileDefinition  ::= InputDef | OutputDef | HSPDef
+
+InputDef        ::= 'INPUT' FileName 'FILE-' LETTER { FileName 'FILE-' LETTER }
+
+OutputDef       ::= 'OUTPUT' FileName 'FILE-' LETTER { FileName 'FILE-' LETTER }
+
+HSPDef          ::= 'HSP' LETTER
+
+FileName        ::= IDENTIFIER
+
+# -----------------------------------------------------------------------------
+# Statements
+# -----------------------------------------------------------------------------
+
+StatementList   ::= Statement { ';' Statement }
+
+Statement       ::= ReadItem
+                  | WriteItem
+                  | PrintItem
+                  | PunchItem
+                  | Compare
+                  | IfCondition
+                  | Jump
+                  | Transfer
+                  | Move
+                  | Arithmetic
+                  | SetOperation
+                  | Test
+                  | CloseOut
+                  | Stop
+
+# -----------------------------------------------------------------------------
+# File I/O Operations
+# -----------------------------------------------------------------------------
+
+ReadItem        ::= 'READ-ITEM' LETTER
+
+WriteItem       ::= 'WRITE-ITEM' LETTER
+
+PrintItem       ::= 'PRINT-ITEM' LETTER
+
+PunchItem       ::= 'PUNCH-ITEM' LETTER
+
+# -----------------------------------------------------------------------------
+# Control Flow
+# -----------------------------------------------------------------------------
+
+Compare         ::= 'COMPARE' FieldRef 'WITH' FieldRef
+
+IfCondition     ::= IfEqual | IfGreater | IfLess | IfEndOfData | Otherwise
+
+IfEqual         ::= 'IF' 'EQUAL' 'GO' 'TO' 'OPERATION' NUMBER
+
+IfGreater       ::= 'IF' 'GREATER' 'GO' 'TO' 'OPERATION' NUMBER
+
+IfLess          ::= 'IF' 'LESS' 'GO' 'TO' 'OPERATION' NUMBER
+
+IfEndOfData     ::= 'IF' 'END' 'OF' 'DATA' 'GO' 'TO' 'OPERATION' NUMBER
+
+Otherwise       ::= 'OTHERWISE' 'GO' 'TO' 'OPERATION' NUMBER
+
+Jump            ::= 'JUMP' 'TO' 'OPERATION' NUMBER
+                  | 'GO' 'TO' 'OPERATION' NUMBER
+
+# -----------------------------------------------------------------------------
+# Data Movement
+# -----------------------------------------------------------------------------
+
+Transfer        ::= 'TRANSFER' LETTER 'TO' LETTER
+
+Move            ::= 'MOVE' Value 'TO' FieldRef
+
+# -----------------------------------------------------------------------------
+# Arithmetic Operations
+# -----------------------------------------------------------------------------
+
+Arithmetic      ::= Add | Subtract | Multiply | Divide
+
+Add             ::= 'ADD' FieldRef 'TO' FieldRef [ 'GIVING' FieldRef ]
+
+Subtract        ::= 'SUBTRACT' FieldRef 'FROM' FieldRef [ 'GIVING' FieldRef ]
+
+Multiply        ::= 'MULTIPLY' FieldRef 'BY' FieldRef 'GIVING' FieldRef
+
+Divide          ::= 'DIVIDE' FieldRef 'BY' FieldRef 'GIVING' FieldRef
+
+# -----------------------------------------------------------------------------
+# Special Operations (Features COBOL dropped!)
+# -----------------------------------------------------------------------------
+
+# SET OPERATION - Runtime flow modification
+# This allows changing where a jump goes AT RUNTIME
+# COBOL's ALTER was similar but deprecated and removed
+SetOperation    ::= 'SET' 'OPERATION' NUMBER 'TO' 'GO' 'TO' 'OPERATION' NUMBER
+
+# TEST - Compare field against literal
+Test            ::= 'TEST' FieldRef 'AGAINST' Value
+
+# -----------------------------------------------------------------------------
+# Termination
+# -----------------------------------------------------------------------------
+
+CloseOut        ::= 'CLOSE-OUT' 'FILES' LETTER { LETTER }
+
+Rewind          ::= 'REWIND' LETTER
+
+Execute         ::= 'EXECUTE' 'OPERATION' NUMBER [ 'THROUGH' 'OPERATION' NUMBER ]
+
+Stop            ::= 'STOP'
+
+# -----------------------------------------------------------------------------
+# Field References and Values
+# -----------------------------------------------------------------------------
+
+FieldRef        ::= IDENTIFIER '(' LETTER ')'
+
+Value           ::= NUMBER
+                  | STRING
+                  | FieldRef
+                  | 'ZEROS' | 'ZEROES'
+                  | 'SPACES'
+
+# -----------------------------------------------------------------------------
+# Lexical Elements
+# -----------------------------------------------------------------------------
+
+LETTER          ::= 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J'
+                  | 'K' | 'L' | 'M' | 'N' | 'O' | 'P' | 'Q' | 'R' | 'S' | 'T'
+                  | 'U' | 'V' | 'W' | 'X' | 'Y' | 'Z'
+
+NUMBER          ::= DIGIT { DIGIT } [ '.' DIGIT { DIGIT } ]
+
+DIGIT           ::= '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
+
+IDENTIFIER      ::= LETTER { LETTER | DIGIT | '-' }
+
+STRING          ::= '"' { CHARACTER } '"'
+
+# -----------------------------------------------------------------------------
+# Comments
+# -----------------------------------------------------------------------------
+
+Comment         ::= '*' { CHARACTER } NEWLINE
+
+# =============================================================================
+# NOTES ON FLOW-MATIC SEMANTICS
+# =============================================================================
+#
+# 1. SINGLE-LETTER FILE ALIASES
+#    Files are referred to by single letters (A, B, C, etc.) throughout
+#    the program. This is much more concise than COBOL's verbose FD names.
+#    Example: COMPARE PRODUCT-NO (A) WITH PRODUCT-NO (B)
+#
+# 2. OPERATION NUMBERS
+#    Each operation is numbered. Control flow is via jumps to operation
+#    numbers. Operation 0 is special - it defines files.
+#
+# 3. COMPARISON RESULTS
+#    COMPARE sets a flag that is checked by IF EQUAL/GREATER/LESS.
+#    Multiple IF statements can follow a single COMPARE.
+#
+# 4. SET OPERATION (The feature COBOL killed!)
+#    SET OPERATION n TO GO TO OPERATION m
+#    This changes where operation n will jump to at runtime.
+#    Modern equivalent requires Strategy pattern or vtables.
+#
+# 5. FILE INTEGRITY (Another feature COBOL dropped!)
+#    Original FLOW-MATIC had built-in block counting:
+#    BLK CT IND - Enable block counting
+#    BLK CT LOC - Where count is stored
+#    END REEL SEN - End of reel sentinel
+#    END FILE SEN - End of file sentinel
+#
+# 6. X-I SECTIONS (Yet another feature COBOL killed!)
+#    X-I sections allowed inline machine code for optimization.
+#    Used relative addressing: A000 (input), W000 (working), M000 (machine)
+#
+# 7. EXECUTE (Subroutine mechanism!)
+#    EXECUTE OPERATION 5 THROUGH OPERATION 8
+#    This runs operations 5-8 as a subroutine, then RETURNS!
+#    A primitive but effective subroutine mechanism in 1958.
+#
+# 8. REWIND (Multi-pass file processing)
+#    REWIND A
+#    Resets file A to beginning for re-reading.
+#    Essential for multi-pass algorithms.
+#
+# =============================================================================
+

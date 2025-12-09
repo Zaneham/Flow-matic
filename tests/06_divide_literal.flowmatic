@@ -1,0 +1,15 @@
+* TEST 06: DIVIDE with numeric literal
+* Tests DIVIDE with a literal divisor (like MULTIPLY)
+
+(0)  INPUT DATA FILE-A ; OUTPUT RESULT FILE-B .
+
+(1)  READ-ITEM A ;
+     IF END OF DATA GO TO OPERATION 3 .
+
+(2)  TRANSFER A TO B ;
+     DIVIDE TOTAL (A) BY 2 GIVING HALF-VALUE (B) ;
+     WRITE-ITEM B ;
+     JUMP TO OPERATION 1 .
+
+(3)  STOP .
+

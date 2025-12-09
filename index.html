@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNIVAC 21 | FLOW-MATIC Casino | The Ian Index</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Playfair+Display:wght@400;700;900&family=Special+Elite&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --nixie-orange: #ff6b35;
+            --nixie-glow: #ff8c5a;
+            --vacuum-tube: #ffd700;
+            --panel-green: #1a472a;
+            --panel-dark: #0d1f15;
+            --chrome: #c0c0c0;
+            --cream: #f5f0e1;
+            --bakelite: #2d1810;
+            --card-felt: #0f5132;
+            --gold-trim: #d4af37;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'IBM Plex Mono', monospace;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%);
+            color: var(--cream);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Scanline effect */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.1) 0px,
+                rgba(0, 0, 0, 0.1) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        /* Header - UNIVAC Control Panel Style */
+        header {
+            background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
+            border-bottom: 4px solid var(--chrome);
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: repeating-linear-gradient(
+                90deg,
+                var(--nixie-orange) 0px,
+                var(--nixie-orange) 20px,
+                transparent 20px,
+                transparent 40px
+            );
+            animation: marquee 20s linear infinite;
+        }
+
+        @keyframes marquee {
+            from { background-position: 0 0; }
+            to { background-position: 200px 0; }
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .univac-badge {
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle at 30% 30%, #4a4a4a, #1a1a1a);
+            border: 3px solid var(--chrome);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Special Elite', cursive;
+            font-size: 0.7rem;
+            text-align: center;
+            color: var(--cream);
+            box-shadow: 
+                0 4px 15px rgba(0,0,0,0.5),
+                inset 0 2px 5px rgba(255,255,255,0.1);
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(180deg, var(--vacuum-tube) 0%, var(--nixie-orange) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(255, 107, 53, 0.5);
+            letter-spacing: 0.1em;
+        }
+
+        .subtitle {
+            font-family: 'Special Elite', cursive;
+            color: var(--chrome);
+            font-size: 1.1rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Status Indicators */
+        .status-panel {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--chrome);
+        }
+
+        .indicator-light {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--nixie-orange);
+            box-shadow: 0 0 10px var(--nixie-orange), 0 0 20px var(--nixie-glow);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .indicator-light.green {
+            background: #00ff00;
+            box-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        /* Main Content */
+        main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        /* Casino Table Section */
+        .casino-table {
+            background: linear-gradient(135deg, var(--panel-dark) 0%, var(--panel-green) 50%, var(--panel-dark) 100%);
+            border: 8px solid var(--bakelite);
+            border-radius: 20px;
+            padding: 3rem;
+            margin-bottom: 3rem;
+            position: relative;
+            box-shadow: 
+                0 20px 60px rgba(0,0,0,0.5),
+                inset 0 2px 10px rgba(255,255,255,0.05);
+        }
+
+        .casino-table::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
+            border: 2px solid var(--gold-trim);
+            border-radius: 12px;
+            pointer-events: none;
+        }
+
+        .table-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .table-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            color: var(--vacuum-tube);
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+            margin-bottom: 0.5rem;
+        }
+
+        .table-header p {
+            font-family: 'Special Elite', cursive;
+            color: var(--cream);
+            font-size: 1.1rem;
+        }
+
+        /* Card Display */
+        .card-area {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+            margin: 2rem 0;
+        }
+
+        .hand {
+            text-align: center;
+        }
+
+        .hand-label {
+            font-family: 'Special Elite', cursive;
+            font-size: 1.2rem;
+            color: var(--gold-trim);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+        }
+
+        .cards {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            min-height: 120px;
+        }
+
+        .card {
+            width: 70px;
+            height: 100px;
+            background: linear-gradient(135deg, #fff 0%, #f0f0f0 100%);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            color: #1a1a1a;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+
+        .card:hover {
+            transform: translateY(-10px) rotate(2deg);
+        }
+
+        .card.red { color: #c41e3a; }
+        .card.hidden {
+            background: repeating-linear-gradient(
+                45deg,
+                #1e3a5f,
+                #1e3a5f 10px,
+                #2a4a6f 10px,
+                #2a4a6f 20px
+            );
+            color: transparent;
+        }
+
+        .card-rank {
+            font-size: 1.8rem;
+            line-height: 1;
+        }
+
+        .card-suit {
+            font-size: 1.5rem;
+            margin-top: 0.2rem;
+        }
+
+        .hand-total {
+            margin-top: 1rem;
+            font-size: 1.5rem;
+            color: var(--nixie-orange);
+            text-shadow: 0 0 10px var(--nixie-orange);
+        }
+
+        /* Game Controls */
+        .game-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .btn {
+            font-family: 'Special Elite', cursive;
+            font-size: 1.2rem;
+            padding: 1rem 2.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .btn-hit {
+            background: linear-gradient(180deg, var(--nixie-orange) 0%, #cc5528 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+        }
+
+        .btn-hit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.6);
+        }
+
+        .btn-stand {
+            background: linear-gradient(180deg, var(--chrome) 0%, #888 100%);
+            color: #1a1a1a;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-stand:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .btn-deal {
+            background: linear-gradient(180deg, var(--vacuum-tube) 0%, #b8960b 100%);
+            color: #1a1a1a;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+        }
+
+        .btn-deal:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.6);
+        }
+
+        /* Message Display */
+        .message {
+            text-align: center;
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: var(--vacuum-tube);
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+            min-height: 3rem;
+            margin: 1rem 0;
+        }
+
+        /* FLOW-MATIC Terminal */
+        .terminal-section {
+            background: #0a0a0a;
+            border: 4px solid var(--bakelite);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .terminal-section::before {
+            content: 'FLOW-MATIC TERMINAL';
+            position: absolute;
+            top: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bakelite);
+            padding: 0.3rem 1.5rem;
+            font-family: 'Special Elite', cursive;
+            font-size: 0.8rem;
+            color: var(--chrome);
+            border-radius: 0 0 8px 8px;
+        }
+
+        .terminal-screen {
+            background: #001100;
+            border-radius: 10px;
+            padding: 1.5rem;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.9rem;
+            color: #00ff00;
+            max-height: 300px;
+            overflow-y: auto;
+            box-shadow: inset 0 0 30px rgba(0, 255, 0, 0.1);
+        }
+
+        .terminal-screen::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .terminal-screen::-webkit-scrollbar-track {
+            background: #001100;
+        }
+
+        .terminal-screen::-webkit-scrollbar-thumb {
+            background: #004400;
+            border-radius: 4px;
+        }
+
+        .terminal-line {
+            margin: 0.3rem 0;
+            opacity: 0;
+            animation: typeIn 0.5s ease forwards;
+        }
+
+        @keyframes typeIn {
+            to { opacity: 1; }
+        }
+
+        .terminal-line.comment { color: #006600; }
+        .terminal-line.keyword { color: #00ff00; }
+        .terminal-line.operation { color: #88ff88; }
+
+        /* Info Panels */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .info-panel {
+            background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
+            border: 3px solid var(--chrome);
+            border-radius: 15px;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .info-panel::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 10px;
+            height: 10px;
+            background: var(--nixie-orange);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--nixie-orange);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .info-panel h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            color: var(--vacuum-tube);
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+        }
+
+        .info-panel p, .info-panel li {
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--cream);
+        }
+
+        .info-panel ul {
+            list-style: none;
+            padding-left: 1.5rem;
+        }
+
+        .info-panel li::before {
+            content: '▸ ';
+            color: var(--nixie-orange);
+        }
+
+        /* Nixie Tube Display */
+        .nixie-display {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin: 2rem 0;
+        }
+
+        .nixie-tube {
+            width: 50px;
+            height: 80px;
+            background: radial-gradient(ellipse at center, #2a1a0a 0%, #0a0500 100%);
+            border: 2px solid #4a3a2a;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--nixie-orange);
+            text-shadow: 
+                0 0 10px var(--nixie-orange),
+                0 0 20px var(--nixie-glow),
+                0 0 30px var(--nixie-orange);
+            box-shadow: 
+                inset 0 0 20px rgba(255, 107, 53, 0.2),
+                0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        /* Footer */
+        footer {
+            background: linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%);
+            border-top: 4px solid var(--chrome);
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .quote {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 1.3rem;
+            color: var(--cream);
+            margin-bottom: 1rem;
+        }
+
+        .quote-author {
+            font-family: 'Special Elite', cursive;
+            color: var(--nixie-orange);
+        }
+
+        .ian-index-badge {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 0.5rem 1.5rem;
+            background: var(--bakelite);
+            border: 2px solid var(--gold-trim);
+            border-radius: 20px;
+            font-family: 'Special Elite', cursive;
+            font-size: 0.9rem;
+            color: var(--gold-trim);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            .header-content { flex-direction: column; text-align: center; }
+            .card { width: 55px; height: 80px; }
+            .card-rank { font-size: 1.4rem; }
+            .card-suit { font-size: 1.2rem; }
+            .btn { padding: 0.8rem 1.5rem; font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo-section">
+                <div class="univac-badge">
+                    UNIVAC<br>DATA<br>AUTOMATION
+                </div>
+                <div>
+                    <h1>UNIVAC 21</h1>
+                    <p class="subtitle">FLOW-MATIC GAMING SYSTEM • CIRCA 1957</p>
+                </div>
+            </div>
+            <div class="status-panel">
+                <div class="indicator">
+                    <div class="indicator-light green"></div>
+                    <span>POWER</span>
+                </div>
+                <div class="indicator">
+                    <div class="indicator-light"></div>
+                    <span>COMPUTE</span>
+                </div>
+                <div class="indicator">
+                    <div class="indicator-light green"></div>
+                    <span>READY</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Nixie Tube Year Display -->
+        <div class="nixie-display">
+            <div class="nixie-tube">1</div>
+            <div class="nixie-tube">9</div>
+            <div class="nixie-tube">5</div>
+            <div class="nixie-tube">7</div>
+        </div>
+
+        <!-- Casino Table -->
+        <section class="casino-table">
+            <div class="table-header">
+                <h2>♠ TWENTY-ONE ♥</h2>
+                <p>Beat the Dealer • Powered by FLOW-MATIC</p>
+            </div>
+
+            <div class="card-area">
+                <div class="hand">
+                    <div class="hand-label">Dealer</div>
+                    <div class="cards" id="dealer-cards">
+                        <div class="card hidden"></div>
+                        <div class="card hidden"></div>
+                    </div>
+                    <div class="hand-total" id="dealer-total">?</div>
+                </div>
+                <div class="hand">
+                    <div class="hand-label">Player</div>
+                    <div class="cards" id="player-cards">
+                        <div class="card">
+                            <span class="card-rank">?</span>
+                            <span class="card-suit">?</span>
+                        </div>
+                    </div>
+                    <div class="hand-total" id="player-total">0</div>
+                </div>
+            </div>
+
+            <div class="message" id="message">Press DEAL to Start</div>
+
+            <div class="game-controls">
+                <button class="btn btn-deal" onclick="deal()">Deal</button>
+                <button class="btn btn-hit" onclick="hit()" id="btn-hit" disabled>Hit</button>
+                <button class="btn btn-stand" onclick="stand()" id="btn-stand" disabled>Stand</button>
+            </div>
+        </section>
+
+        <!-- FLOW-MATIC Terminal -->
+        <section class="terminal-section">
+            <div class="terminal-screen" id="terminal">
+                <div class="terminal-line comment">* UNIVAC 21 - FLOW-MATIC CARD GAME</div>
+                <div class="terminal-line comment">* Written for UNIVAC I/II (1957)</div>
+                <div class="terminal-line comment">* Grace Hopper's Business Language</div>
+                <div class="terminal-line">&nbsp;</div>
+                <div class="terminal-line keyword">(0) INPUT DECK FILE-A ; OUTPUT PLAYER FILE-B .</div>
+                <div class="terminal-line">&nbsp;</div>
+                <div class="terminal-line operation">(1) MOVE 0 TO PLAYER-TOTAL (B) .</div>
+                <div class="terminal-line operation">(2) READ-ITEM A ; DEAL CARD TO PLAYER .</div>
+                <div class="terminal-line">&nbsp;</div>
+                <div class="terminal-line comment">* AWAITING OPERATOR INPUT...</div>
+            </div>
+        </section>
+
+        <!-- Info Panels -->
+        <div class="info-grid">
+            <div class="info-panel">
+                <h3>About FLOW-MATIC</h3>
+                <p>FLOW-MATIC was the <strong>first English-like programming language</strong>, 
+                developed by Grace Hopper and her team at Remington Rand from 1955-1959.</p>
+                <ul>
+                    <li>Ran on UNIVAC I and UNIVAC II</li>
+                    <li>Direct ancestor of COBOL</li>
+                    <li>First to use English words as code</li>
+                    <li>Proved computers could understand natural syntax</li>
+                </ul>
+            </div>
+            <div class="info-panel">
+                <h3>Features COBOL Killed</h3>
+                <p>FLOW-MATIC had revolutionary features that COBOL dropped:</p>
+                <ul>
+                    <li><strong>SET OPERATION</strong> - Runtime flow modification</li>
+                    <li><strong>X-I Sections</strong> - Inline machine code</li>
+                    <li><strong>EXECUTE</strong> - Subroutine mechanism</li>
+                    <li><strong>Single-letter aliases</strong> - Concise file refs</li>
+                    <li><strong>Block integrity</strong> - Built-in validation</li>
+                </ul>
+            </div>
+            <div class="info-panel">
+                <h3>The Ian Index</h3>
+                <p>This page is part of <strong>The Ian Index</strong> - a comprehensive archive 
+                preserving computing history and documenting the "forgetting cycle" where 
+                innovations are lost and later reinvented.</p>
+                <ul>
+                    <li>Original documentation preserved</li>
+                    <li>Working implementations</li>
+                    <li>Historical analysis</li>
+                    <li>Named after Ian, who believed in remembering</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p class="quote">"The most dangerous words in the language:<br>
+            'We have always done it this way.'"</p>
+            <p class="quote-author">— Rear Admiral Grace Hopper, USN</p>
+            <div class="ian-index-badge">THE IAN INDEX • HOPPER PROJECT</div>
+        </div>
+    </footer>
+
+    <script>
+        // Card game logic
+        const suits = ['♠', '♥', '♦', '♣'];
+        const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+        const values = [11, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10];
+        
+        let deck = [];
+        let playerHand = [];
+        let dealerHand = [];
+        let gameOver = false;
+
+        function createDeck() {
+            deck = [];
+            for (let suit of suits) {
+                for (let i = 0; i < ranks.length; i++) {
+                    deck.push({ rank: ranks[i], suit: suit, value: values[i] });
+                }
+            }
+            // Shuffle
+            for (let i = deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
+        }
+
+        function drawCard() {
+            return deck.pop();
+        }
+
+        function calculateTotal(hand) {
+            let total = hand.reduce((sum, card) => sum + card.value, 0);
+            let aces = hand.filter(card => card.rank === 'A').length;
+            while (total > 21 && aces > 0) {
+                total -= 10;
+                aces--;
+            }
+            return total;
+        }
+
+        function renderCard(card, hidden = false) {
+            if (hidden) {
+                return '<div class="card hidden"></div>';
+            }
+            const isRed = card.suit === '♥' || card.suit === '♦';
+            return `<div class="card ${isRed ? 'red' : ''}">
+                <span class="card-rank">${card.rank}</span>
+                <span class="card-suit">${card.suit}</span>
+            </div>`;
+        }
+
+        function renderHand(hand, elementId, hideFirst = false) {
+            const container = document.getElementById(elementId);
+            container.innerHTML = hand.map((card, i) => 
+                renderCard(card, hideFirst && i === 0)
+            ).join('');
+        }
+
+        function addTerminalLine(text, className = '') {
+            const terminal = document.getElementById('terminal');
+            const line = document.createElement('div');
+            line.className = `terminal-line ${className}`;
+            line.textContent = text;
+            line.style.animationDelay = '0.1s';
+            terminal.appendChild(line);
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        function deal() {
+            createDeck();
+            playerHand = [drawCard(), drawCard()];
+            dealerHand = [drawCard(), drawCard()];
+            gameOver = false;
+
+            renderHand(playerHand, 'player-cards');
+            renderHand(dealerHand, 'dealer-cards', true);
+            
+            document.getElementById('player-total').textContent = calculateTotal(playerHand);
+            document.getElementById('dealer-total').textContent = '?';
+            document.getElementById('message').textContent = 'Hit or Stand?';
+            
+            document.getElementById('btn-hit').disabled = false;
+            document.getElementById('btn-stand').disabled = false;
+
+            addTerminalLine('');
+            addTerminalLine('* NEW GAME INITIATED', 'comment');
+            addTerminalLine('(2) READ-ITEM A ; DEAL TO PLAYER .', 'operation');
+            addTerminalLine(`    CARD: ${playerHand[0].rank} OF ${getSuitName(playerHand[0].suit)}`, 'keyword');
+            addTerminalLine('(3) READ-ITEM A ; DEAL TO PLAYER .', 'operation');
+            addTerminalLine(`    CARD: ${playerHand[1].rank} OF ${getSuitName(playerHand[1].suit)}`, 'keyword');
+            addTerminalLine(`(4) PLAYER-TOTAL = ${calculateTotal(playerHand)}`, 'operation');
+
+            if (calculateTotal(playerHand) === 21) {
+                endGame('BLACKJACK! You Win!');
+            }
+        }
+
+        function hit() {
+            if (gameOver) return;
+            
+            const card = drawCard();
+            playerHand.push(card);
+            renderHand(playerHand, 'player-cards');
+            
+            const total = calculateTotal(playerHand);
+            document.getElementById('player-total').textContent = total;
+
+            addTerminalLine('(7) READ-ITEM A ; PLAYER HITS .', 'operation');
+            addTerminalLine(`    CARD: ${card.rank} OF ${getSuitName(card.suit)}`, 'keyword');
+            addTerminalLine(`    PLAYER-TOTAL = ${total}`, 'operation');
+
+            if (total > 21) {
+                endGame('BUST! Dealer Wins');
+            } else if (total === 21) {
+                stand();
+            }
+        }
+
+        function stand() {
+            if (gameOver) return;
+            
+            document.getElementById('btn-hit').disabled = true;
+            document.getElementById('btn-stand').disabled = true;
+            
+            addTerminalLine('(10) PLAYER STANDS .', 'operation');
+            addTerminalLine('(11) DEALER REVEALS HAND .', 'operation');
+
+            // Reveal dealer's hand
+            renderHand(dealerHand, 'dealer-cards');
+            
+            // Dealer draws
+            while (calculateTotal(dealerHand) < 17) {
+                const card = drawCard();
+                dealerHand.push(card);
+                addTerminalLine('(12) READ-ITEM A ; DEALER HITS .', 'operation');
+                addTerminalLine(`    CARD: ${card.rank} OF ${getSuitName(card.suit)}`, 'keyword');
+            }
+            
+            renderHand(dealerHand, 'dealer-cards');
+            const dealerTotal = calculateTotal(dealerHand);
+            const playerTotal = calculateTotal(playerHand);
+            
+            document.getElementById('dealer-total').textContent = dealerTotal;
+            addTerminalLine(`(13) DEALER-TOTAL = ${dealerTotal}`, 'operation');
+            addTerminalLine('(14) COMPARE PLAYER-TOTAL WITH DEALER-TOTAL .', 'operation');
+
+            if (dealerTotal > 21) {
+                endGame('Dealer Busts! You Win!');
+            } else if (playerTotal > dealerTotal) {
+                endGame('You Win!');
+            } else if (playerTotal < dealerTotal) {
+                endGame('Dealer Wins');
+            } else {
+                endGame('Push - Tie!');
+            }
+        }
+
+        function endGame(message) {
+            gameOver = true;
+            document.getElementById('message').textContent = message;
+            document.getElementById('btn-hit').disabled = true;
+            document.getElementById('btn-stand').disabled = true;
+            
+            addTerminalLine('');
+            addTerminalLine(`* RESULT: ${message.toUpperCase()}`, 'comment');
+            addTerminalLine('(21) STOP .', 'keyword');
+        }
+
+        function getSuitName(suit) {
+            const names = { '♠': 'SPADES', '♥': 'HEARTS', '♦': 'DIAMONDS', '♣': 'CLUBS' };
+            return names[suit];
+        }
+
+        // Initialize terminal with delayed animation
+        document.querySelectorAll('.terminal-line').forEach((line, i) => {
+            line.style.animationDelay = `${i * 0.2}s`;
+        });
+    </script>
+</body>
+</html>
+

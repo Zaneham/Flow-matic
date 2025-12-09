@@ -1,0 +1,7 @@
+{
+    "B": [
+        {"NAME": "FIRST", "VALUE": 50, "DOUBLED": 110, "STATUS": "PROCESSED"},
+        {"NAME": "SECOND", "VALUE": 100, "DOUBLED": 210, "STATUS": "PROCESSED"}
+    ]
+}
+

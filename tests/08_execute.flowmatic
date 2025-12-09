@@ -1,0 +1,32 @@
+* TEST 08: EXECUTE - Subroutine mechanism!
+* From U1518 manual: "Performs designated operation or sequence of operations"
+* This is a primitive but effective subroutine call mechanism!
+
+(0)  INPUT DATA FILE-A ; OUTPUT RESULT FILE-B .
+
+* Main loop
+(1)  READ-ITEM A ; IF END OF DATA GO TO OPERATION 6 .
+
+(2)  TRANSFER A TO B .
+
+* Call subroutine to process the record (operations 10-12)
+(3)  EXECUTE OPERATION 10 THROUGH OPERATION 12 .
+
+* After subroutine returns, write result
+(4)  WRITE-ITEM B .
+
+(5)  JUMP TO OPERATION 1 .
+
+(6)  STOP .
+
+* ============================================
+* SUBROUTINE: Operations 10-12
+* Double the value and add a bonus
+* ============================================
+
+(10) MULTIPLY VALUE (B) BY 2 GIVING DOUBLED (B) .
+
+(11) ADD 10 TO DOUBLED (B) .
+
+(12) MOVE "PROCESSED" TO STATUS (B) .
+

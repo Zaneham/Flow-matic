@@ -1,0 +1,208 @@
+* ============================================================================
+* FLOW-MATIC SET OPERATION DEMONSTRATION
+* ============================================================================
+* Written for: UNIVAC I / UNIVAC II
+* Language:    FLOW-MATIC (1957)
+* Author:      Hopper Project - Preserving Grace Hopper's Legacy
+*
+* THIS IS THE FEATURE COBOL KILLED!
+* 
+* SET OPERATION allows runtime modification of program flow.
+* In ONE English sentence, you can change where a jump goes.
+*
+* COBOL had ALTER which did something similar, but it was deprecated
+* and eventually removed. Modern languages need entire "Strategy Pattern"
+* class hierarchies to achieve what FLOW-MATIC did in one line:
+*
+*     SET OPERATION 9 TO GO TO OPERATION 2
+*
+* That's it. That's the whole thing. One English sentence.
+* In 2024, this requires:
+*   - Interface definition
+*   - Concrete strategy classes  
+*   - Context class
+*   - Factory or dependency injection
+*
+* Grace Hopper knew what she was doing.
+*
+* Based on: U1518 FLOW-MATIC Programming System (1958), page 97
+* ============================================================================
+*
+* This program processes transactions differently based on account type.
+* Instead of nested IF statements, we use SET OPERATION to dynamically
+* route processing - elegant and efficient!
+*
+* FILE DEFINITIONS:
+*   A = TRANSACTIONS      (Input)  - Incoming transactions
+*   B = ACCOUNT-TYPES     (Input)  - Account configuration
+*   C = PROCESSED-OUTPUT  (Output) - Processed transactions
+*   D = HIGH-SPEED-PRINTER (HSP)   - Audit trail
+*
+* ============================================================================
+
+(0)  INPUT TRANSACTIONS FILE-A ACCOUNT-TYPES FILE-B ;
+     OUTPUT PROCESSED-OUTPUT FILE-C ;
+     HSP D .
+
+* ----------------------------------------------------------------------------
+* OPERATION 1: Initialize - set up processing routes
+* This is where the magic happens - we configure flow at startup!
+* ----------------------------------------------------------------------------
+(1)  READ-ITEM B ;
+     IF END OF DATA GO TO OPERATION 3 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 2: Configure processing routes based on account type
+* SET OPERATION dynamically changes where operation 10 will jump to!
+* ----------------------------------------------------------------------------
+(2)  TEST ACCOUNT-TYPE (B) AGAINST "CHECKING" ;
+     IF EQUAL SET OPERATION 10 TO GO TO OPERATION 11 ;
+     TEST ACCOUNT-TYPE (B) AGAINST "SAVINGS" ;
+     IF EQUAL SET OPERATION 10 TO GO TO OPERATION 12 ;
+     TEST ACCOUNT-TYPE (B) AGAINST "INVESTMENT" ;
+     IF EQUAL SET OPERATION 10 TO GO TO OPERATION 13 ;
+     READ-ITEM B ;
+     IF END OF DATA GO TO OPERATION 3 ;
+     JUMP TO OPERATION 2 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 3: Begin transaction processing
+* ----------------------------------------------------------------------------
+(3)  READ-ITEM A ;
+     IF END OF DATA GO TO OPERATION 20 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 4: Look up account type for this transaction
+* ----------------------------------------------------------------------------
+(4)  READ-ITEM B ;
+     IF END OF DATA GO TO OPERATION 9 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 5: Match transaction to account type
+* ----------------------------------------------------------------------------
+(5)  COMPARE ACCOUNT-NO (A) WITH ACCOUNT-NO (B) ;
+     IF EQUAL GO TO OPERATION 6 ;
+     OTHERWISE GO TO OPERATION 4 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 6: Found account - configure route and process
+* THIS is the power of SET OPERATION!
+* We're setting where operation 10 goes BASED ON THE DATA
+* ----------------------------------------------------------------------------
+(6)  TEST ACCOUNT-TYPE (B) AGAINST "CHECKING" ;
+     IF EQUAL SET OPERATION 10 TO GO TO OPERATION 11 ;
+     TEST ACCOUNT-TYPE (B) AGAINST "SAVINGS" ;
+     IF EQUAL SET OPERATION 10 TO GO TO OPERATION 12 ;
+     TEST ACCOUNT-TYPE (B) AGAINST "INVESTMENT" ;
+     IF EQUAL SET OPERATION 10 TO GO TO OPERATION 13 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 7: Prepare transaction for processing
+* ----------------------------------------------------------------------------
+(7)  TRANSFER A TO C ;
+     MOVE ACCOUNT-TYPE (B) TO ACCOUNT-TYPE (C) .
+
+* ----------------------------------------------------------------------------
+* OPERATION 8: Jump to configurable processing
+* ----------------------------------------------------------------------------
+(8)  JUMP TO OPERATION 10 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 9: Account not found - error handling
+* ----------------------------------------------------------------------------
+(9)  MOVE "ACCOUNT NOT FOUND" TO ERROR-MSG (C) ;
+     MOVE ACCOUNT-NO (A) TO ERROR-ACCOUNT (C) ;
+     PRINT-ITEM D ;
+     JUMP TO OPERATION 19 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 10: DYNAMICALLY ROUTED OPERATION
+* Where this goes depends on SET OPERATION calls above!
+* Default: go to operation 14 (unknown type)
+* ----------------------------------------------------------------------------
+(10) JUMP TO OPERATION 14 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 11: Process CHECKING account transaction
+* Route here when SET OPERATION 10 TO GO TO OPERATION 11
+* ----------------------------------------------------------------------------
+(11) MOVE "CHECKING" TO PROCESS-TYPE (C) ;
+     MULTIPLY AMOUNT (A) BY 1.00 GIVING PROCESSED-AMOUNT (C) ;
+     MOVE "IMMEDIATE" TO AVAILABILITY (C) ;
+     JUMP TO OPERATION 15 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 12: Process SAVINGS account transaction
+* Route here when SET OPERATION 10 TO GO TO OPERATION 12
+* ----------------------------------------------------------------------------
+(12) MOVE "SAVINGS" TO PROCESS-TYPE (C) ;
+     MULTIPLY AMOUNT (A) BY 1.02 GIVING PROCESSED-AMOUNT (C) ;
+     MOVE "NEXT DAY" TO AVAILABILITY (C) ;
+     JUMP TO OPERATION 15 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 13: Process INVESTMENT account transaction
+* Route here when SET OPERATION 10 TO GO TO OPERATION 13
+* ----------------------------------------------------------------------------
+(13) MOVE "INVESTMENT" TO PROCESS-TYPE (C) ;
+     MULTIPLY AMOUNT (A) BY 1.05 GIVING PROCESSED-AMOUNT (C) ;
+     MOVE "3 BUSINESS DAYS" TO AVAILABILITY (C) ;
+     JUMP TO OPERATION 15 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 14: Unknown account type - default processing
+* ----------------------------------------------------------------------------
+(14) MOVE "UNKNOWN" TO PROCESS-TYPE (C) ;
+     MOVE AMOUNT (A) TO PROCESSED-AMOUNT (C) ;
+     MOVE "HOLD FOR REVIEW" TO AVAILABILITY (C) .
+
+* ----------------------------------------------------------------------------
+* OPERATION 15: Write processed transaction
+* ----------------------------------------------------------------------------
+(15) WRITE-ITEM C ;
+     PRINT-ITEM D .
+
+* ----------------------------------------------------------------------------
+* OPERATION 16: Update statistics
+* ----------------------------------------------------------------------------
+(16) ADD 1 TO TRANSACTIONS-PROCESSED (C) ;
+     ADD PROCESSED-AMOUNT (C) TO TOTAL-AMOUNT (C) .
+
+* ----------------------------------------------------------------------------
+* OPERATION 17: Continue to next transaction
+* ----------------------------------------------------------------------------
+(17) JUMP TO OPERATION 19 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 18: (Reserved)
+* ----------------------------------------------------------------------------
+(18) JUMP TO OPERATION 19 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 19: Read next transaction
+* ----------------------------------------------------------------------------
+(19) READ-ITEM A ;
+     IF END OF DATA GO TO OPERATION 20 ;
+     JUMP TO OPERATION 4 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 20: End of processing - print summary
+* ----------------------------------------------------------------------------
+(20) MOVE "PROCESSING COMPLETE" TO STATUS (C) ;
+     PRINT-ITEM D ;
+     CLOSE-OUT FILES C ;
+     STOP .
+
+* ============================================================================
+* END OF SET OPERATION DEMONSTRATION
+* 
+* What you just saw:
+* - Runtime modification of program flow in ONE ENGLISH SENTENCE
+* - No Strategy pattern classes
+* - No vtables
+* - No function pointers
+* - Just: SET OPERATION 10 TO GO TO OPERATION 11
+*
+* COBOL killed this. We're bringing it back.
+* ============================================================================
+

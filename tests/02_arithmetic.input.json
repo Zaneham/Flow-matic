@@ -1,0 +1,7 @@
+{
+    "A": [
+        {"PRODUCT": "WIDGET", "QUANTITY": 10, "UNIT-PRICE": 5.00},
+        {"PRODUCT": "GADGET", "QUANTITY": 5, "UNIT-PRICE": 12.50}
+    ]
+}
+

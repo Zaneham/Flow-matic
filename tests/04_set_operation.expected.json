@@ -1,0 +1,7 @@
+{
+    "C": [
+        {"ID": "001", "AMOUNT": 100, "PROCESSED": 110.0, "TYPE": "PREMIUM"},
+        {"ID": "002", "AMOUNT": 200, "PROCESSED": 220.0, "TYPE": "PREMIUM"}
+    ]
+}
+
