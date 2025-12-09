@@ -19,6 +19,7 @@
             --bakelite: #2d1810;
             --card-felt: #0f5132;
             --gold-trim: #d4af37;
+            --border-subtle: #3a3a2a;
         }
 
         * {
@@ -551,6 +552,123 @@
             color: var(--gold-trim);
         }
 
+        /* Coming Soon Section */
+        .coming-soon-section {
+            background: linear-gradient(135deg, var(--panel-dark) 0%, var(--panel-green) 50%, var(--panel-dark) 100%);
+            border: 3px solid var(--bakelite);
+            border-radius: 15px;
+            padding: 3rem 2rem;
+            margin: 3rem auto;
+            max-width: 1200px;
+            position: relative;
+        }
+
+        .coming-soon-section::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
+            border: 1px solid var(--gold-trim);
+            border-radius: 10px;
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        .coming-soon-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+        }
+
+        .coming-soon-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: var(--vacuum-tube);
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+            margin-bottom: 1rem;
+        }
+
+        .coming-soon-description {
+            font-family: 'Special Elite', cursive;
+            color: var(--cream);
+            font-size: 1rem;
+            line-height: 1.8;
+            margin-bottom: 2.5rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .coming-soon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .coming-soon-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid var(--border-subtle);
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: left;
+            transition: all 0.3s ease;
+        }
+
+        .coming-soon-card:hover {
+            border-color: var(--gold-trim);
+            background: rgba(0, 0, 0, 0.5);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
+        }
+
+        .coming-soon-badge {
+            display: inline-block;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 0.3rem 0.7rem;
+            background: rgba(255, 107, 53, 0.2);
+            color: var(--nixie-orange);
+            border: 1px solid rgba(255, 107, 53, 0.4);
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            font-family: 'Special Elite', cursive;
+        }
+
+        .coming-soon-card h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            color: var(--vacuum-tube);
+            margin-bottom: 0.5rem;
+        }
+
+        .coming-soon-card p {
+            font-size: 0.9rem;
+            color: var(--cream);
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .coming-soon-footer {
+            color: var(--cream);
+            font-size: 0.9rem;
+            margin-top: 2rem;
+        }
+
+        .coming-soon-footer a {
+            color: var(--nixie-orange);
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.2s;
+        }
+
+        .coming-soon-footer a:hover {
+            border-bottom-color: var(--nixie-orange);
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             h1 { font-size: 2rem; }
@@ -559,6 +677,9 @@
             .card-rank { font-size: 1.4rem; }
             .card-suit { font-size: 1.2rem; }
             .btn { padding: 0.8rem 1.5rem; font-size: 1rem; }
+            .coming-soon-section { padding: 2rem 1rem; }
+            .coming-soon-title { font-size: 1.5rem; }
+            .coming-soon-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -690,6 +811,43 @@
                 </ul>
             </div>
         </div>
+
+        <!-- Coming Soon Section -->
+        <section class="coming-soon-section">
+            <div class="coming-soon-content">
+                <h2 class="coming-soon-title">More FLOW-MATIC Projects Coming Soon</h2>
+                <p class="coming-soon-description">
+                    We're actively expanding the FLOW-MATIC implementation with more examples, 
+                    features, and historical recreations. The archive grows weekly.
+                </p>
+                <div class="coming-soon-grid">
+                    <div class="coming-soon-card">
+                        <span class="coming-soon-badge">In Progress</span>
+                        <h4>Payroll System</h4>
+                        <p>Full payroll processing with overtime calculations</p>
+                    </div>
+                    <div class="coming-soon-card">
+                        <span class="coming-soon-badge">In Progress</span>
+                        <h4>Inventory Management</h4>
+                        <p>Multi-file inventory reorder system</p>
+                    </div>
+                    <div class="coming-soon-card">
+                        <span class="coming-soon-badge">Researching</span>
+                        <h4>X-I Machine Code</h4>
+                        <p>Inline assembly sections implementation</p>
+                    </div>
+                    <div class="coming-soon-card">
+                        <span class="coming-soon-badge">Archiving</span>
+                        <h4>Historical Docs</h4>
+                        <p>More U1518 manual sections being processed</p>
+                    </div>
+                </div>
+                <p class="coming-soon-footer">
+                    Have FLOW-MATIC documentation or code? 
+                    <a href="https://github.com/Zaneham/Flow-matic" target="_blank">Contribute on GitHub</a>
+                </p>
+            </div>
+        </section>
     </main>
 
     <footer>
