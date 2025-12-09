@@ -8,6 +8,7 @@
 > — Grace Hopper, 1952
 
 **Part of [The Ian Index](https://github.com/Zaneham/Flow-matic)** — Preserving computing history.
+pip install ian-flowmatic
 
 ## What is FLOW-MATIC?
 
