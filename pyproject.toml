@@ -1,0 +1,93 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ian-flowmatic"
+version = "1.0.0"
+description = "FLOW-MATIC Interpreter - Grace Hopper's 1957 Business Language"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.8"
+authors = [
+    {name = "The Ian Index", email = "zane@theianindex.com"}
+]
+maintainers = [
+    {name = "The Ian Index", email = "zane@theianindex.com"}
+]
+keywords = [
+    "flow-matic",
+    "flowmatic",
+    "grace-hopper",
+    "cobol",
+    "univac",
+    "programming-language",
+    "interpreter",
+    "vintage-computing",
+    "computer-history",
+    "ian-index"
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Education",
+    "Topic :: Scientific/Engineering :: Interface Engine/Protocol Translator",
+    "Topic :: Software Development :: Interpreters",
+    "Topic :: System :: Emulators",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/Zaneham/Flow-matic"
+Documentation = "https://github.com/Zaneham/Flow-matic#readme"
+Repository = "https://github.com/Zaneham/Flow-matic.git"
+Issues = "https://github.com/Zaneham/Flow-matic/issues"
+Changelog = "https://github.com/Zaneham/Flow-matic/releases"
+
+[project.scripts]
+flowmatic = "flowmatic.cli:main"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "black>=23.0",
+    "mypy>=1.0",
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+flowmatic = [
+    "*.gram",
+    "examples/*.flowmatic",
+]
+
+[tool.black]
+line-length = 100
+target-version = ["py38", "py39", "py310", "py311", "py312"]
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+

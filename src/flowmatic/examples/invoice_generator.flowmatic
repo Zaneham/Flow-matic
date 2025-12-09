@@ -1,0 +1,118 @@
+* ============================================================================
+* FLOW-MATIC INVOICE GENERATOR
+* ============================================================================
+* Written for: UNIVAC I / UNIVAC II
+* Language:    FLOW-MATIC (1957)
+* Author:      Hopper Project - Preserving Grace Hopper's Legacy
+* 
+* This program generates invoices by matching customer orders with
+* the product catalog, calculating line totals and invoice totals.
+*
+* Based on: U1518 FLOW-MATIC Programming System (1958)
+*           Remington Rand UNIVAC Division
+* ============================================================================
+* 
+* FILE DEFINITIONS:
+*   A = CUSTOMER-ORDERS    (Input)  - Orders to be invoiced
+*   B = PRODUCT-CATALOG    (Input)  - Product prices and descriptions  
+*   C = INVOICE-OUTPUT     (Output) - Generated invoice lines
+*   D = HIGH-SPEED-PRINTER (HSP)    - Printed invoice
+*
+* RECORD LAYOUTS:
+*   CUSTOMER-ORDERS (A):
+*     CUSTOMER-NO, CUSTOMER-NAME, ORDER-NO, PRODUCT-NO, QUANTITY, ORDER-DATE
+*
+*   PRODUCT-CATALOG (B):
+*     PRODUCT-NO, PRODUCT-DESC, UNIT-PRICE, TAX-CODE
+*
+*   INVOICE-OUTPUT (C):
+*     INVOICE-NO, CUSTOMER-NO, CUSTOMER-NAME, PRODUCT-NO, PRODUCT-DESC,
+*     QUANTITY, UNIT-PRICE, LINE-TOTAL, TAX-AMOUNT
+*
+* ============================================================================
+
+(0)  INPUT CUSTOMER-ORDERS FILE-A PRODUCT-CATALOG FILE-B ;
+     OUTPUT INVOICE-OUTPUT FILE-C ;
+     HSP D .
+
+* ----------------------------------------------------------------------------
+* OPERATION 1: Initialize and read first records
+* ----------------------------------------------------------------------------
+(1)  READ-ITEM A ;
+     IF END OF DATA GO TO OPERATION 10 ;
+     READ-ITEM B .
+
+* ----------------------------------------------------------------------------
+* OPERATION 2: Match order product with catalog - the heart of FLOW-MATIC!
+* Notice how concise this is compared to COBOL - single-letter aliases rock
+* ----------------------------------------------------------------------------
+(2)  COMPARE PRODUCT-NO (A) WITH PRODUCT-NO (B) ;
+     IF EQUAL GO TO OPERATION 4 ;
+     IF LESS GO TO OPERATION 3 ;
+     OTHERWISE GO TO OPERATION 6 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 3: Order product not found in catalog - skip to next order
+* ----------------------------------------------------------------------------
+(3)  READ-ITEM A ;
+     IF END OF DATA GO TO OPERATION 10 ;
+     READ-ITEM B ;
+     JUMP TO OPERATION 2 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 4: Match found! Calculate line total and write invoice line
+* This is where the magic happens - English-like arithmetic
+* ----------------------------------------------------------------------------
+(4)  TRANSFER A TO C ;
+     MOVE PRODUCT-DESC (B) TO PRODUCT-DESC (C) ;
+     MOVE UNIT-PRICE (B) TO UNIT-PRICE (C) ;
+     MULTIPLY QUANTITY (A) BY UNIT-PRICE (B) GIVING LINE-TOTAL (C) ;
+     MULTIPLY LINE-TOTAL (C) BY TAX-RATE (B) GIVING TAX-AMOUNT (C) ;
+     WRITE-ITEM C ;
+     PRINT-ITEM D .
+
+* ----------------------------------------------------------------------------
+* OPERATION 5: Add to running totals and get next order
+* ----------------------------------------------------------------------------
+(5)  ADD LINE-TOTAL (C) TO INVOICE-SUBTOTAL (C) ;
+     ADD TAX-AMOUNT (C) TO INVOICE-TAX (C) ;
+     READ-ITEM A ;
+     IF END OF DATA GO TO OPERATION 9 ;
+     JUMP TO OPERATION 2 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 6: Catalog product greater - advance catalog file
+* ----------------------------------------------------------------------------
+(6)  READ-ITEM B ;
+     IF END OF DATA GO TO OPERATION 8 ;
+     JUMP TO OPERATION 2 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 7: Continue processing (reserved)
+* ----------------------------------------------------------------------------
+(7)  JUMP TO OPERATION 2 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 8: End of catalog before end of orders - error condition
+* ----------------------------------------------------------------------------
+(8)  MOVE "CATALOG EXHAUSTED" TO ERROR-MSG (C) ;
+     PRINT-ITEM D ;
+     JUMP TO OPERATION 10 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 9: End of orders - print invoice totals
+* ----------------------------------------------------------------------------
+(9)  ADD INVOICE-SUBTOTAL (C) TO INVOICE-TAX (C) GIVING INVOICE-TOTAL (C) ;
+     MOVE "INVOICE COMPLETE" TO STATUS (C) ;
+     PRINT-ITEM D .
+
+* ----------------------------------------------------------------------------
+* OPERATION 10: Finalize and stop
+* ----------------------------------------------------------------------------
+(10) CLOSE-OUT FILES C ;
+     STOP .
+
+* ============================================================================
+* END OF INVOICE GENERATOR
+* ============================================================================
+

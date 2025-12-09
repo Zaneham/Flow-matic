@@ -1,0 +1,237 @@
+* ============================================================================
+* UNIVAC 21 - A CARD GAME FOR THE UNIVAC
+* ============================================================================
+* Written for: UNIVAC I / UNIVAC II
+* Language:    FLOW-MATIC (1957)
+* Author:      Hopper Project - Games Division
+*
+* The year is 1957. You're a UNIVAC operator on your lunch break.
+* The machine is idle. Why not play a quick game of 21?
+*
+* RULES:
+*   - Draw cards to get as close to 21 as possible
+*   - Go over 21 and you BUST!
+*   - Beat the dealer's hand to win
+*   - Aces count as 11 (simplified for FLOW-MATIC)
+*
+* This proves FLOW-MATIC isn't just for invoices!
+* Grace Hopper would have appreciated a break too.
+*
+* ============================================================================
+*
+* FILE DEFINITIONS:
+*   A = CARD-DECK         (Input)  - The deck of cards
+*   B = PLAYER-HAND       (Working) - Player's cards
+*   C = DEALER-HAND       (Working) - Dealer's cards  
+*   D = HIGH-SPEED-PRINTER (HSP)   - Game display
+*
+* ============================================================================
+
+(0)  INPUT CARD-DECK FILE-A ;
+     OUTPUT PLAYER-HAND FILE-B DEALER-HAND FILE-C ;
+     HSP D .
+
+* ----------------------------------------------------------------------------
+* OPERATION 1: Initialize the game
+* ----------------------------------------------------------------------------
+(1)  MOVE ZEROS TO PLAYER-TOTAL (B) ;
+     MOVE ZEROS TO DEALER-TOTAL (C) ;
+     MOVE ZEROS TO CARDS-DEALT (B) ;
+     MOVE "GAME START" TO STATUS (D) ;
+     PRINT-ITEM D .
+
+* ----------------------------------------------------------------------------
+* OPERATION 2: Deal first card to player
+* ----------------------------------------------------------------------------
+(2)  READ-ITEM A ;
+     IF END OF DATA GO TO OPERATION 20 ;
+     MOVE CARD-VALUE (A) TO CARD-VALUE (B) ;
+     MOVE CARD-NAME (A) TO LAST-CARD (B) ;
+     ADD CARD-VALUE (A) TO PLAYER-TOTAL (B) ;
+     ADD 1 TO CARDS-DEALT (B) ;
+     MOVE "PLAYER DRAWS" TO ACTION (D) ;
+     MOVE CARD-NAME (A) TO CARD-DRAWN (D) ;
+     PRINT-ITEM D .
+
+* ----------------------------------------------------------------------------
+* OPERATION 3: Deal second card to player
+* ----------------------------------------------------------------------------
+(3)  READ-ITEM A ;
+     IF END OF DATA GO TO OPERATION 20 ;
+     ADD CARD-VALUE (A) TO PLAYER-TOTAL (B) ;
+     ADD 1 TO CARDS-DEALT (B) ;
+     MOVE CARD-NAME (A) TO CARD-DRAWN (D) ;
+     PRINT-ITEM D .
+
+* ----------------------------------------------------------------------------
+* OPERATION 4: Show player total and check for blackjack
+* ----------------------------------------------------------------------------
+(4)  MOVE PLAYER-TOTAL (B) TO SHOWN-TOTAL (D) ;
+     MOVE "PLAYER TOTAL" TO ACTION (D) ;
+     PRINT-ITEM D ;
+     TEST PLAYER-TOTAL (B) AGAINST 21 ;
+     IF EQUAL GO TO OPERATION 15 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 5: Deal first card to dealer
+* ----------------------------------------------------------------------------
+(5)  READ-ITEM A ;
+     IF END OF DATA GO TO OPERATION 20 ;
+     MOVE CARD-VALUE (A) TO CARD-VALUE (C) ;
+     ADD CARD-VALUE (A) TO DEALER-TOTAL (C) ;
+     MOVE "DEALER DRAWS" TO ACTION (D) ;
+     MOVE CARD-NAME (A) TO CARD-DRAWN (D) ;
+     PRINT-ITEM D .
+
+* ----------------------------------------------------------------------------
+* OPERATION 6: Deal second card to dealer (face down in real game)
+* ----------------------------------------------------------------------------
+(6)  READ-ITEM A ;
+     IF END OF DATA GO TO OPERATION 20 ;
+     ADD CARD-VALUE (A) TO DEALER-TOTAL (C) ;
+     MOVE "DEALER DRAWS" TO ACTION (D) ;
+     MOVE "FACE DOWN" TO CARD-DRAWN (D) ;
+     PRINT-ITEM D .
+
+* ----------------------------------------------------------------------------
+* OPERATION 7: Player's turn - hit or stand decision
+* Based on simple strategy: hit if under 17
+* ----------------------------------------------------------------------------
+(7)  TEST PLAYER-TOTAL (B) AGAINST 17 ;
+     IF LESS GO TO OPERATION 8 ;
+     OTHERWISE GO TO OPERATION 10 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 8: Player hits (draws another card)
+* ----------------------------------------------------------------------------
+(8)  READ-ITEM A ;
+     IF END OF DATA GO TO OPERATION 20 ;
+     ADD CARD-VALUE (A) TO PLAYER-TOTAL (B) ;
+     MOVE "PLAYER HITS" TO ACTION (D) ;
+     MOVE CARD-NAME (A) TO CARD-DRAWN (D) ;
+     MOVE PLAYER-TOTAL (B) TO SHOWN-TOTAL (D) ;
+     PRINT-ITEM D .
+
+* ----------------------------------------------------------------------------
+* OPERATION 9: Check if player busted
+* ----------------------------------------------------------------------------
+(9)  TEST PLAYER-TOTAL (B) AGAINST 21 ;
+     IF GREATER GO TO OPERATION 17 ;
+     OTHERWISE GO TO OPERATION 7 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 10: Player stands - dealer's turn
+* ----------------------------------------------------------------------------
+(10) MOVE "PLAYER STANDS" TO ACTION (D) ;
+     MOVE PLAYER-TOTAL (B) TO SHOWN-TOTAL (D) ;
+     PRINT-ITEM D .
+
+* ----------------------------------------------------------------------------
+* OPERATION 11: Dealer reveals and plays
+* Dealer must hit on 16 or less, stand on 17+
+* ----------------------------------------------------------------------------
+(11) MOVE "DEALER REVEALS" TO ACTION (D) ;
+     MOVE DEALER-TOTAL (C) TO SHOWN-TOTAL (D) ;
+     PRINT-ITEM D ;
+     TEST DEALER-TOTAL (C) AGAINST 17 ;
+     IF LESS GO TO OPERATION 12 ;
+     OTHERWISE GO TO OPERATION 13 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 12: Dealer hits
+* ----------------------------------------------------------------------------
+(12) READ-ITEM A ;
+     IF END OF DATA GO TO OPERATION 20 ;
+     ADD CARD-VALUE (A) TO DEALER-TOTAL (C) ;
+     MOVE "DEALER HITS" TO ACTION (D) ;
+     MOVE CARD-NAME (A) TO CARD-DRAWN (D) ;
+     MOVE DEALER-TOTAL (C) TO SHOWN-TOTAL (D) ;
+     PRINT-ITEM D ;
+     TEST DEALER-TOTAL (C) AGAINST 21 ;
+     IF GREATER GO TO OPERATION 16 ;
+     OTHERWISE GO TO OPERATION 11 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 13: Dealer stands - compare hands
+* ----------------------------------------------------------------------------
+(13) MOVE "DEALER STANDS" TO ACTION (D) ;
+     PRINT-ITEM D ;
+     COMPARE PLAYER-TOTAL (B) WITH DEALER-TOTAL (C) ;
+     IF GREATER GO TO OPERATION 14 ;
+     IF EQUAL GO TO OPERATION 18 ;
+     OTHERWISE GO TO OPERATION 19 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 14: Player wins!
+* ----------------------------------------------------------------------------
+(14) MOVE "*** PLAYER WINS! ***" TO RESULT (D) ;
+     MOVE PLAYER-TOTAL (B) TO PLAYER-FINAL (D) ;
+     MOVE DEALER-TOTAL (C) TO DEALER-FINAL (D) ;
+     PRINT-ITEM D ;
+     JUMP TO OPERATION 21 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 15: Player blackjack!
+* ----------------------------------------------------------------------------
+(15) MOVE "*** BLACKJACK! PLAYER WINS! ***" TO RESULT (D) ;
+     MOVE 21 TO PLAYER-FINAL (D) ;
+     PRINT-ITEM D ;
+     JUMP TO OPERATION 21 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 16: Dealer busts - player wins!
+* ----------------------------------------------------------------------------
+(16) MOVE "*** DEALER BUSTS! PLAYER WINS! ***" TO RESULT (D) ;
+     MOVE PLAYER-TOTAL (B) TO PLAYER-FINAL (D) ;
+     MOVE DEALER-TOTAL (C) TO DEALER-FINAL (D) ;
+     PRINT-ITEM D ;
+     JUMP TO OPERATION 21 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 17: Player busts - dealer wins
+* ----------------------------------------------------------------------------
+(17) MOVE "*** PLAYER BUSTS! DEALER WINS! ***" TO RESULT (D) ;
+     MOVE PLAYER-TOTAL (B) TO PLAYER-FINAL (D) ;
+     PRINT-ITEM D ;
+     JUMP TO OPERATION 21 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 18: Push (tie)
+* ----------------------------------------------------------------------------
+(18) MOVE "*** PUSH - IT'S A TIE! ***" TO RESULT (D) ;
+     MOVE PLAYER-TOTAL (B) TO PLAYER-FINAL (D) ;
+     MOVE DEALER-TOTAL (C) TO DEALER-FINAL (D) ;
+     PRINT-ITEM D ;
+     JUMP TO OPERATION 21 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 19: Dealer wins
+* ----------------------------------------------------------------------------
+(19) MOVE "*** DEALER WINS! ***" TO RESULT (D) ;
+     MOVE PLAYER-TOTAL (B) TO PLAYER-FINAL (D) ;
+     MOVE DEALER-TOTAL (C) TO DEALER-FINAL (D) ;
+     PRINT-ITEM D ;
+     JUMP TO OPERATION 21 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 20: Out of cards
+* ----------------------------------------------------------------------------
+(20) MOVE "DECK EXHAUSTED" TO STATUS (D) ;
+     PRINT-ITEM D .
+
+* ----------------------------------------------------------------------------
+* OPERATION 21: Game over
+* ----------------------------------------------------------------------------
+(21) MOVE "GAME OVER - THANK YOU FOR PLAYING UNIVAC 21" TO STATUS (D) ;
+     PRINT-ITEM D ;
+     STOP .
+
+* ============================================================================
+* END OF UNIVAC 21
+*
+* "In pioneer days they used oxen for heavy pulling, and when one ox
+*  couldn't budge a log, they didn't try to grow a larger ox. We
+*  shouldn't be trying for bigger computers, but for more systems
+*  of computers." - Grace Hopper
+* ============================================================================
+

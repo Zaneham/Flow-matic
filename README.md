@@ -1,7 +1,13 @@
 # FLOW-MATIC: Grace Hopper's Business Language (1957)
 
+[![PyPI version](https://badge.fury.io/py/ian-flowmatic.svg)](https://badge.fury.io/py/ian-flowmatic)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 > *"It is much easier for most people to write an English statement than it is to use symbols."*
 > — Grace Hopper, 1952
+
+**Part of [The Ian Index](https://github.com/Zaneham/Flow-matic)** — Preserving computing history.
 
 ## What is FLOW-MATIC?
 
@@ -9,20 +15,26 @@ FLOW-MATIC was the **first English-like programming language**, developed by Gra
 
 This implementation faithfully recreates FLOW-MATIC's syntax and semantics based on the original **U1518 FLOW-MATIC Programming System** manual (1958).
 
+## Installation
+
+```bash
+pip install ian-flowmatic
+```
+
 ## Quick Start
 
 ```bash
-# Run the demo
-python demo.py
+# Run a program
+flowmatic examples/invoice_generator.flowmatic
 
-# Run a specific program
-python run_flowmatic.py examples/invoice_generator.flowmatic
-
-# Run all examples
-python run_flowmatic.py --demo
+# Run all demos
+flowmatic --demo
 
 # List available examples
-python run_flowmatic.py --list
+flowmatic --list
+
+# Or use Python directly
+python -c "from flowmatic import run_file; run_file('program.flowmatic')"
 ```
 
 ## Example Programs

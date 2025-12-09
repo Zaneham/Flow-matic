@@ -1,0 +1,129 @@
+* ============================================================================
+* FLOW-MATIC PAYROLL PROCESSOR
+* ============================================================================
+* Written for: UNIVAC I / UNIVAC II  
+* Language:    FLOW-MATIC (1957)
+* Author:      Hopper Project - Preserving Grace Hopper's Legacy
+*
+* This program calculates employee pay by matching employee records
+* with hours worked, applying pay rates and deductions.
+*
+* Grace Hopper believed business people should be able to read programs.
+* Look how clear this is - almost plain English!
+*
+* Based on: U1518 FLOW-MATIC Programming System (1958)
+* ============================================================================
+*
+* FILE DEFINITIONS:
+*   A = EMPLOYEE-MASTER   (Input)  - Employee information and pay rates
+*   B = TIME-CARDS        (Input)  - Hours worked this period
+*   C = PAYROLL-OUTPUT    (Output) - Calculated pay records
+*   D = HIGH-SPEED-PRINTER (HSP)   - Pay stubs
+*
+* ============================================================================
+
+(0)  INPUT EMPLOYEE-MASTER FILE-A TIME-CARDS FILE-B ;
+     OUTPUT PAYROLL-OUTPUT FILE-C ;
+     HSP D .
+
+* ----------------------------------------------------------------------------
+* OPERATION 1: Read employee and time card
+* ----------------------------------------------------------------------------
+(1)  READ-ITEM A ;
+     IF END OF DATA GO TO OPERATION 12 ;
+     READ-ITEM B .
+
+* ----------------------------------------------------------------------------
+* OPERATION 2: Match employee with time card
+* ----------------------------------------------------------------------------
+(2)  COMPARE EMPLOYEE-NO (A) WITH EMPLOYEE-NO (B) ;
+     IF EQUAL GO TO OPERATION 4 ;
+     IF LESS GO TO OPERATION 3 ;
+     OTHERWISE GO TO OPERATION 11 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 3: No time card for this employee - they didn't work
+* ----------------------------------------------------------------------------
+(3)  MOVE ZEROS TO GROSS-PAY (C) ;
+     MOVE ZEROS TO NET-PAY (C) ;
+     TRANSFER A TO C ;
+     MOVE "NO HOURS WORKED" TO PAY-STATUS (C) ;
+     WRITE-ITEM C ;
+     READ-ITEM A ;
+     IF END OF DATA GO TO OPERATION 12 ;
+     JUMP TO OPERATION 2 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 4: Calculate regular pay
+* FLOW-MATIC arithmetic is beautifully English-like
+* ----------------------------------------------------------------------------
+(4)  TRANSFER A TO C ;
+     MULTIPLY HOURS-WORKED (B) BY HOURLY-RATE (A) GIVING GROSS-PAY (C) .
+
+* ----------------------------------------------------------------------------
+* OPERATION 5: Check for overtime (over 40 hours)
+* Notice the elegant TEST and conditional flow
+* ----------------------------------------------------------------------------
+(5)  TEST HOURS-WORKED (B) AGAINST 40 ;
+     IF GREATER GO TO OPERATION 6 ;
+     OTHERWISE GO TO OPERATION 7 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 6: Calculate overtime pay (time and a half)
+* ----------------------------------------------------------------------------
+(6)  SUBTRACT 40 FROM HOURS-WORKED (B) GIVING OVERTIME-HOURS (C) ;
+     MULTIPLY HOURLY-RATE (A) BY 1.5 GIVING OVERTIME-RATE (C) ;
+     MULTIPLY OVERTIME-HOURS (C) BY OVERTIME-RATE (C) GIVING OVERTIME-PAY (C) ;
+     ADD OVERTIME-PAY (C) TO GROSS-PAY (C) .
+
+* ----------------------------------------------------------------------------
+* OPERATION 7: Calculate deductions
+* ----------------------------------------------------------------------------
+(7)  MULTIPLY GROSS-PAY (C) BY TAX-RATE (A) GIVING TAX-DEDUCTION (C) ;
+     MULTIPLY GROSS-PAY (C) BY INSURANCE-RATE (A) GIVING INSURANCE-DED (C) ;
+     ADD TAX-DEDUCTION (C) TO INSURANCE-DED (C) GIVING TOTAL-DEDUCTIONS (C) .
+
+* ----------------------------------------------------------------------------
+* OPERATION 8: Calculate net pay
+* ----------------------------------------------------------------------------
+(8)  SUBTRACT TOTAL-DEDUCTIONS (C) FROM GROSS-PAY (C) GIVING NET-PAY (C) ;
+     MOVE "PAID" TO PAY-STATUS (C) .
+
+* ----------------------------------------------------------------------------
+* OPERATION 9: Write payroll record and print pay stub
+* ----------------------------------------------------------------------------
+(9)  WRITE-ITEM C ;
+     PRINT-ITEM D .
+
+* ----------------------------------------------------------------------------
+* OPERATION 10: Update totals and continue
+* ----------------------------------------------------------------------------
+(10) ADD GROSS-PAY (C) TO TOTAL-PAYROLL (C) ;
+     ADD NET-PAY (C) TO TOTAL-NET-DISBURSED (C) ;
+     READ-ITEM A ;
+     READ-ITEM B ;
+     IF END OF DATA GO TO OPERATION 12 ;
+     JUMP TO OPERATION 2 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 11: Time card without employee record - error
+* ----------------------------------------------------------------------------
+(11) MOVE "UNKNOWN EMPLOYEE" TO ERROR-MSG (C) ;
+     MOVE EMPLOYEE-NO (B) TO ERROR-EMPLOYEE (C) ;
+     PRINT-ITEM D ;
+     READ-ITEM B ;
+     IF END OF DATA GO TO OPERATION 12 ;
+     JUMP TO OPERATION 2 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 12: End of processing - print summary
+* ----------------------------------------------------------------------------
+(12) MOVE "PAYROLL COMPLETE" TO STATUS (C) ;
+     PRINT-ITEM D ;
+     CLOSE-OUT FILES C ;
+     STOP .
+
+* ============================================================================
+* END OF PAYROLL PROCESSOR
+* ============================================================================
+

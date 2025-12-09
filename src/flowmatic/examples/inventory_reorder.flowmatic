@@ -1,0 +1,112 @@
+* ============================================================================
+* FLOW-MATIC INVENTORY REORDER SYSTEM
+* ============================================================================
+* Written for: UNIVAC I / UNIVAC II
+* Language:    FLOW-MATIC (1957)
+* Author:      Hopper Project - Preserving Grace Hopper's Legacy
+*
+* This program checks inventory levels against reorder points and
+* generates purchase orders for items that need restocking.
+*
+* This showcases FLOW-MATIC's strength in business data processing -
+* the reason Grace Hopper created it in the first place!
+*
+* Based on: U1518 FLOW-MATIC Programming System (1958)
+* ============================================================================
+*
+* FILE DEFINITIONS:
+*   A = INVENTORY-FILE    (Input)  - Current stock levels
+*   B = VENDOR-FILE       (Input)  - Supplier information
+*   C = PURCHASE-ORDERS   (Output) - Generated POs
+*   D = HIGH-SPEED-PRINTER (HSP)   - Reorder report
+*
+* ============================================================================
+
+(0)  INPUT INVENTORY-FILE FILE-A VENDOR-FILE FILE-B ;
+     OUTPUT PURCHASE-ORDERS FILE-C ;
+     HSP D .
+
+* ----------------------------------------------------------------------------
+* OPERATION 1: Initialize and read first inventory item
+* ----------------------------------------------------------------------------
+(1)  MOVE ZEROS TO TOTAL-ITEMS-CHECKED (C) ;
+     MOVE ZEROS TO TOTAL-REORDERS (C) ;
+     READ-ITEM A ;
+     IF END OF DATA GO TO OPERATION 10 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 2: Check if item needs reordering
+* Compare current stock against reorder point - pure FLOW-MATIC elegance
+* ----------------------------------------------------------------------------
+(2)  COMPARE QUANTITY-ON-HAND (A) WITH REORDER-POINT (A) ;
+     IF LESS GO TO OPERATION 3 ;
+     IF EQUAL GO TO OPERATION 3 ;
+     OTHERWISE GO TO OPERATION 7 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 3: Item needs reorder - find the vendor
+* ----------------------------------------------------------------------------
+(3)  READ-ITEM B ;
+     IF END OF DATA GO TO OPERATION 6 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 4: Match item to vendor
+* ----------------------------------------------------------------------------
+(4)  COMPARE VENDOR-CODE (A) WITH VENDOR-NO (B) ;
+     IF EQUAL GO TO OPERATION 5 ;
+     OTHERWISE GO TO OPERATION 3 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 5: Create purchase order
+* Look at this - a complete PO generated in plain English statements!
+* ----------------------------------------------------------------------------
+(5)  TRANSFER A TO C ;
+     MOVE VENDOR-NAME (B) TO VENDOR-NAME (C) ;
+     MOVE VENDOR-ADDRESS (B) TO VENDOR-ADDRESS (C) ;
+     SUBTRACT QUANTITY-ON-HAND (A) FROM REORDER-QUANTITY (A) GIVING ORDER-QTY (C) ;
+     MULTIPLY ORDER-QTY (C) BY UNIT-COST (A) GIVING ORDER-TOTAL (C) ;
+     MOVE "PENDING" TO ORDER-STATUS (C) ;
+     WRITE-ITEM C ;
+     PRINT-ITEM D ;
+     ADD 1 TO TOTAL-REORDERS (C) ;
+     JUMP TO OPERATION 7 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 6: Vendor not found - flag for manual review
+* ----------------------------------------------------------------------------
+(6)  MOVE "VENDOR NOT FOUND" TO ORDER-STATUS (C) ;
+     MOVE PRODUCT-NO (A) TO FLAGGED-PRODUCT (C) ;
+     MOVE VENDOR-CODE (A) TO FLAGGED-VENDOR (C) ;
+     PRINT-ITEM D .
+
+* ----------------------------------------------------------------------------
+* OPERATION 7: Continue to next inventory item
+* ----------------------------------------------------------------------------
+(7)  ADD 1 TO TOTAL-ITEMS-CHECKED (C) ;
+     READ-ITEM A ;
+     IF END OF DATA GO TO OPERATION 8 ;
+     JUMP TO OPERATION 2 .
+
+* ----------------------------------------------------------------------------
+* OPERATION 8: Print summary report
+* ----------------------------------------------------------------------------
+(8)  MOVE "INVENTORY CHECK COMPLETE" TO REPORT-TITLE (C) ;
+     PRINT-ITEM D .
+
+* ----------------------------------------------------------------------------
+* OPERATION 9: Print statistics
+* ----------------------------------------------------------------------------
+(9)  MOVE TOTAL-ITEMS-CHECKED (C) TO SUMMARY-CHECKED (C) ;
+     MOVE TOTAL-REORDERS (C) TO SUMMARY-REORDERS (C) ;
+     PRINT-ITEM D .
+
+* ----------------------------------------------------------------------------
+* OPERATION 10: Finalize
+* ----------------------------------------------------------------------------
+(10) CLOSE-OUT FILES C ;
+     STOP .
+
+* ============================================================================
+* END OF INVENTORY REORDER SYSTEM
+* ============================================================================
+
