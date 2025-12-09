@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ian-flowmatic"
-version = "1.0.0"
+version = "1.0.1"
 description = "FLOW-MATIC Interpreter - Grace Hopper's 1957 Business Language"
 readme = "README.md"
 license = {text = "MIT"}

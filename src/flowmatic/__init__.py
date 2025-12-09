@@ -15,7 +15,7 @@ Example usage:
     interpreter.run()
 """
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 __author__ = "The Ian Index"
 __all__ = ["FlowMaticInterpreter", "run_program", "run_file"]
 
