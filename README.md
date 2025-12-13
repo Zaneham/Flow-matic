@@ -7,7 +7,7 @@
 > *"It is much easier for most people to write an English statement than it is to use symbols."*
 > — Grace Hopper, 1952
 
-**Part of [The Ian Index](https://github.com/Zaneham/Flow-matic)** — Preserving computing history.
+**Part of [The Ian Index](https://github.com/Zaneham/Flow-matic) coming soon** — Preserving computing history.
 pip install ian-flowmatic
 
 ## What is FLOW-MATIC?
